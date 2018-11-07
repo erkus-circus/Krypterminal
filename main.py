@@ -15,7 +15,7 @@ import time
 
 import requests as req
 
-VERSION = '0.2.0.0'
+VERSION = '1.0.0.0'
 
 startup = []
 
@@ -205,6 +205,12 @@ try:
         pkgs = True
         ncom = None  # the next command to execute
         stopAtError = True  # Show errors that occur in pkgs
+    
+    if osys.paths == []:
+        with open(BP + '/path','w') as f:
+            json.dump([BP + '/pkgs'], f)
+            osys.paths = [BP + '/pkgs']
+    
 except:
     sys.exit('An error occured. could not begin. exiting...')
 
