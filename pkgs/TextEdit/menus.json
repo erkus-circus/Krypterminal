@@ -1,0 +1,57 @@
+[
+    {
+        "name": "File",
+        "type": "dropdown",
+        "drop": [
+            {
+                "type": "cmd",
+                "name": "save",
+                "cmd": "save_file",
+                "keys": "<Control-s>"
+            },
+            {
+                "type": "cmd",
+                "name": "Open file",
+                "cmd": "open_file",
+                "keys": "<Control-o>"
+            },
+            {
+                "type": "seperator"
+            },
+            {
+                "type": "cmd",
+                "name": "Exit",
+                "cmd": "exit",
+                "keys": "<Control-w>"
+            }
+        ]
+    },
+    {
+        "name": "View",
+        "type": "dropdown",
+        "drop": [
+            {
+                "name": "Zoom in",
+                "type": "cmd",
+                "cmd": "font_size_add",
+                "keys": "<Control-=>"
+            },
+            {
+                "name": "Zoom out",
+                "type": "cmd",
+                "cmd": "font_size_sub",
+                "keys": "<Control-minus>"
+            }
+        ]
+    },
+    {
+        "name": "User",
+        "type": "dropdown",
+        "drop": [
+            {
+                "type": "comment",
+                "content": "put user menus here!"
+            }
+        ]
+    }
+]
