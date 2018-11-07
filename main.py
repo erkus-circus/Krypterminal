@@ -218,6 +218,14 @@ def mainOs():
     print('Krypterminal [Version %s]' %  (VERSION))
     print('Eric Diskin\n')
 
+    if osys.restart:
+        osys.restart = False
+    
+    try:
+        os.makedirs(BP + '/pkgs')
+    except OSError as e:
+        pass
+
     try:
         while True:
             if startup != []:
