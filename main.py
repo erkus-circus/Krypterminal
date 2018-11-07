@@ -19,10 +19,12 @@ VERSION = '1.0.0.0'
 
 startup = []
 
+# NOTE: Add ALL changes to the below string.
 whatsNew = """
 
 Changes in """+VERSION+""":
 ~ Sent all files into one file
+~ Allowed for multiple people to use this than just one without lots of bugs.
 ~ Improved the pkg download and install proccess.
 ~ Improved reset functionality
 ~ Fixed pkgs automatically abandoning even there is no error.
