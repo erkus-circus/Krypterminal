@@ -76,7 +76,8 @@ go to https://github.com/erkus-circus/cmds/
 """
 
 future = """
-The future is unclear at the moment!
+For future version (1.1.0.0):
+    ~ Begin work on a front-end version
 """
 
 BASE_PATH = os.getcwd()
