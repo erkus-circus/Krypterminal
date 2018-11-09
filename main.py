@@ -2,8 +2,6 @@
 Kyrpterminal
 Eric Diskin
 Started: 10/8/2018
-""" """
-Some pkgs created by Ashten Spector
 """
 
 import json
@@ -77,7 +75,6 @@ go to https://github.com/erkus-circus/cmds/
 
 future = """
 For future version (1.1.0.0):
-this is a test
     ~ Begin work on a front-end version
 """
 
