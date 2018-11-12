@@ -10,62 +10,17 @@ import platform as pltfrm
 import shutil
 import sys
 import time
-
+from threading import Thread
 import requests as req
 
-VERSION = '1.0.0.0'
+VERSION = '1.2.0'
 
 startup = []
 
 # NOTE: Add ALL changes to the below string.
 whatsNew = """
-
-Changes in """+VERSION+""":
-~ Sent all files into one file
-~ Allowed for multiple people to use this than just one without lots of bugs.
-~ Improved the pkg download and install proccess.
-~ Improved reset functionality
-~ Fixed pkgs automatically abandoning even there is no error.
-
-~ Commands
-    ~ Added restart
-        ~ restarts system
-        ~ Added future
-            ~ learn what is coming in future updates.
-    ~ devMode
-        ~ turns on dev commands such as python restarts
-    ~ added sleep
-        ~ sleep the terminal for a certain amt of time
-        ~ after sleep add another cmd for after cmd (optional)
-    ~ Added path
-        ~ path -l lists osys.paths
-        ~ path -a adds a path to osys.paths
-        ~ path -r removes a path to osys.paths
-        ~ For scanning more directories for pkgs.
-        ~ Externally installed pkgs
-        ~ User created pkgs.
-    ~ Added setname
-    ~ Added name
-    ~ Added input
-        ~ Changes from showing osys.path to whatever you want
-        ~ Equivelent to WIN10 'prompt' command
-    ~ Added tree
-        ~ shows a tree of the current directory and all subdirectories with files 
-    ~ Added ispkg
-        ~ checks if a package is installed in the paths.
-    ~ Changed reset-pkgs to reset
-    ~ Added open
-        ~ Opens a file in directory
-    ~ seperate commands with ;
-    ~ Added pkgs
-        ~ Lists all the pkgs in the global path (osys.paths or path file in BP)
-        ~ Turn pkgs on or off 
-    ~ Added stopAtError
-        ~ Stops at errors instead of restarting.
-    ~ Moved the clear command execution to com module.
-~ No longer asks for users name when starting terminal.
-~ startup cmds added. edit startup list to change startup cmds.
-~ Many, many bug fixes!
+    ~ Commented more, so other people can read
+    ~ Threads are used to run pkgs
 """.replace('\n','\n\n')
 
 """
@@ -74,14 +29,17 @@ go to https://github.com/erkus-circus/cmds/
 """
 
 future = """
-For future version (1.1.0.0):
-    ~ Begin work on a front-end version
+For future version (1.3.0):
+    ~ Nothing at the moment
 """
 
-BASE_PATH = os.getcwd()
+BASE_PATH = os.getcwd()# BP and BASE_PATH are the base path (for my computer it is C:\code\Colab\Python\OS)
 BP = BASE_PATH
+
+threads = {}
+
 ONOFF = ('off', 'on')
-DEFAULT = ('13DEFAULT-COMMAND13','erk_wuz_here')
+DEFAULT = ('13DEFAULT7-7COMMAND13','erk_wuz_here','placeholders are great','lol','lol')
 
 # change working directory to user home foler
 os.chdir(os.path.expanduser('~'))
@@ -96,18 +54,36 @@ def cmd(command):
     cmd('exit')"""
     os.system(command)
 
+def runApp(script, path, argv, opts={}):
+    sys.argv = argv
+    print(opts)
+    if 'use_main' in opts:
+        if opts['use_main']:
+            exec(compile(script, path, 'exec'), {'__file__': path})
+            return
+
+    t = Thread(name=path, target=lambda script, path: exec(
+        compile(script, path, 'exec'), {'__file__': path}), args=(script, path))
+    t.start()
+
+
 def leng(tlen, length):
+    """if the length of tlen (iterable) is greater or equal to length, return true, otherwise return false."""
     if len(tlen) >= length:
         return True
     return False
 
 def py(IO):
+    # Execute an I/O
     try:
         exec(IO.read())
     except:
         return
 
-def download(URL='http://google.com/favicon.ico', LOC=None):
+def download(URL, LOC=None):
+    """
+    Download something from the internet
+    """
     if LOC == None:
         LOC = URL.split('/')[-1]
 
@@ -126,23 +102,17 @@ def plfrm():
     """The plfrm function returns the platform of the host OS.
     if the system is Windows, it returns wind.
     if the system is Linux then it returns linx.
-    if the system is Java it returns java.
+    if the system is Java it returns jav.
     """
 
     if pltfrm.system() == 'Windows':
         return 'wind'
 
     elif pltfrm.system() == 'Java':
-        return 'java'
+        return 'jav'
 
     else:
         return 'linx'
-
-def fExists(path):
-    """check if a file exits"""
-    if os.path.isfile(path):
-        return True
-    return False
 
 def clear():
     if plfrm() == 'wind':
@@ -150,18 +120,14 @@ def clear():
     else:
         cmd('clear')
 
-def dirExists(direct):
-    """check if a directory exits"""
-    if os.path.isdir(direct):
-        return True
-    return False
-
 def readFile(path, prefix=''):
+    """return a read file"""
     with open(prefix + path) as file:
         ret = file.read()
     return ret
 
 def deldir(path):
+    """remove a directory"""
     shutil.rmtree(path)
 
 def join(arr, **kwargs):
@@ -174,40 +140,45 @@ def join(arr, **kwargs):
 
     return sep.join(arr)
 
-def rdir(dir):
-    shutil.rmtree(dir)
-
 def tree(direct, tabs=0):
-    for d in os.listdir(direct):
-        if os.path.isfile(direct + '/' + d):
-            print((' ' * (tabs)) + '|- ' + d)
+    """
+    Print a tree of a directory
+    """
+    try:
+        for d in os.listdir(direct):
+            if os.path.isfile(direct + '/' + d):
+                print((' ' * (tabs)) + '|- ' + d)
 
-        elif os.path.isdir(direct + '/' + d):
+            elif os.path.isdir(direct + '/' + d):
 
-            print((' ' * (tabs)) + ' \\ ' + d)
-            tabs += 1
-            tabs = tree(direct + '/' + d, tabs)
-            tabs -= 1
+                print((' ' * (tabs)) + ' \\ ' + d)
+                tabs += 1
+                tabs = tree(direct + '/' + d, tabs)
+                tabs -= 1
 
-        else:
-            print('neither dir nor file')
+            else:
+                print('neither dir nor file')
 
-    print((' ' * (tabs)) + '/')
+        print((' ' * (tabs)) + '/')
+    except WindowsError as e:
+        print((' ' * tabs) + '/ ~ A restricted directory was found. skipping.')
     return tabs
 
 try:
+    # the class that has all important variables
     class osys:
-        username = 'Guest'
+        username = 'Guest' # username
         restart = False  # if resart happens when the main loop breaks.
         paths = json.load(open(BP + '/path'))  # the place to scan pkgs
         path = os.getcwd()  # the path
         devMode = False # for dev cmds
-        prompt = DEFAULT
-        pkgs = True
+        prompt = DEFAULT # the prompt to use in terminal
+        pkgs = True # enable or disable pkgs
         ncom = None  # the next command to execute
-        stopAtError = True  # Show errors that occur in pkgs
+        stopAtError = True  # stop and show an error when it occurs instead of restarting
     
     if osys.paths == []:
+        # if there is no place to scan for pkgs, create one
         with open(BP + '/path','w') as f:
             json.dump([BP + '/pkgs'], f)
             osys.paths = [BP + '/pkgs']
@@ -217,35 +188,42 @@ except:
 
 
 def sendCom(comm):
+    """Set the next command to execute"""
     osys.ncom = comm
 
-def mainOs():
-    global startup
-    clear()
-    print('Krypterminal [Version %s]' %  (VERSION))
+def mainTerminal():
+    """The main shell"""
+    global startup # startup is the list of commands to execute in order
+    clear() # clear terminal
+
+    print('Krypterminal [Version %s]' %  (VERSION)) #Print stuff
     print('Eric Diskin\n')
 
     if osys.restart:
+        # if there was just a restart
         osys.restart = False
+        print('A restart occured.')
     
     try:
         os.makedirs(BP + '/pkgs')
+        # try to make sure there is a place to scan for pkgs
     except OSError as e:
         pass
 
     try:
         while True:
+            #mainloop
+
             if startup != []:
                 # the startup system. change startup var to exec different cmds at start.
                 osys.ncom = startup.pop(0)
 
-                
-            def ecmd(cmd):
-                osys.ncom = cmd
-
             if osys.ncom == None:
+
                 osys.path = os.getcwd()
+
                 if osys.prompt == DEFAULT:
+                    # check if prompt is not set to DEFAULT
                     command = input(osys.path + ':> ')
                 else:
                     command = input(osys.prompt)
@@ -256,30 +234,40 @@ def mainOs():
                 osys.ncom = None
 
             if len(command) < 1:
+                # if there is no input, send another request for it
                 continue
             
             if ';' in command:
+                # more tan one command in one line
                 startup = command.split(';')
                 continue
 
             words = command.split()
-            cmd1 = words[0]
+            cmd1 = words[0] # the actual command itself
 
             make = False
             
             if osys.pkgs:
+                # if pkgs are enbled
+
                 for p in osys.paths:
+                    # for path in the path file (located in BP)
+                    if not os.path.isdir(p):
+                        # if the dir is not  dir (it as deleted)
+                        continue
+
                     for direct in os.listdir(p):
                         if cmd1 == direct:
                             path = p +'\\'+ direct + '\\'
-                            if not fExists(path + 'setup.json'):
+                            if not os.path.isfile(path + 'setup.json'):
+                                # if the folder is not a pkg
                                 continue
 
                             with open(path + 'setup.json') as js:
                                     js = json.load(js)
                             if not osys.stopAtError:
                                 try:
-                                    exec(readFile(path + js['run']), {'command':command, 'cmdexec':ecmd})
+                                    runApp(readFile(path + js['run']), path + js['run'], words, js['opts'] if 'opts' in js else {})
 
                                 except Exception as e:
                                     if osys.stopAtError:
@@ -287,9 +275,10 @@ def mainOs():
                                     else:
                                         print('Something went wrong. abandoning script.')
                             else:
-                                exec(readFile(path + js['run']), {'command': command, 'cmdexec': ecmd, 'PATH': BP + '/pkgs/%s/' % direct})
+                                runApp(
+                                    readFile(path + js['run']), path + js['run'], words, js['opts'] if 'opts' in js else {})
 
-                            make = True
+                            make = True # the command was a pkg
                             break
 
                         if make:
@@ -299,11 +288,15 @@ def mainOs():
                     continue
 
             if osys.devMode:
+                # for testing (makes life 110% easier)
                 if words[0] == 'python' or words[0] == 'py':
                     cmd1 = 'exit'
 
             if cmd1 == 'restart':
-                print('Restaring')
+                # call mainTerminal again
+                print('Restaring..')
+                osys.restart = True
+                break
 
             elif cmd1 == 'exit':
                 # end the loop and exit the OS
@@ -314,6 +307,7 @@ def mainOs():
                 break
             
             elif cmd1 == 'sleep':
+                # wait a certain amout of sec before exec next cmd
                 try:
                     if leng(words,2):
                         try:
@@ -326,19 +320,23 @@ def mainOs():
                     print('Unable to turn %s into a number.' % words[1])
 
             elif cmd1 == 'whatsNew':
+                # print what is new in cur version
                 for i in whatsNew.split('\n'):
                     print(i)
                     time.sleep(.05)
 
             elif cmd1 == 'future':
+                # plans fr next version
                 for i in future.split('\n'):
                     print(i)
                     time.sleep(.05)
 
             elif cmd1 == 'tree':
+                #print tree of dir
                 tree(osys.path)
             
             elif cmd1 == 'prompt':
+                # change prompt
                 if leng(words,2):
                     osys.prompt = ' '.join(words[1:])
                 else:
@@ -346,6 +344,7 @@ def mainOs():
                     osys.prompt = DEFAULT
 
             elif cmd1 == 'path':
+                # add dirs to scan for pkgs
                 if '-a' in words and '-r' in words:
                     print('Unable to add and remove path from the global path.')
                     continue
@@ -357,6 +356,7 @@ def mainOs():
                                 print(path)
 
                         elif word == '-r':
+                            # remove a dir to scan
                             if leng(words,3):
                                 try:
                                     osys.paths.remove(' '.join(words[2:]))
@@ -368,12 +368,13 @@ def mainOs():
                                 print('Usage: path -r <directory>')
 
                         elif word == '-a':
+                            # add a dir to scan
                             if leng(words, 3):
                                 if ' '.join(words[2:]) in osys.paths:
                                     print('Unable to add an already existing path to global path.')
 
                                 else:
-                                    if dirExists(' '.join(words[2:])):
+                                    if os.path.isdir(' '.join(words[2:])):
                                         osys.paths.append(' '.join(words[2:]))
                                         with open(BP + '/path','w') as pa:
                                             json.dump(osys.paths,pa)
@@ -389,32 +390,36 @@ def mainOs():
             elif cmd1 == 'install':
                 """Install more commands.
                 use Github.
-                URL: https://github.com/erkus-circus/cmds.git"""
+                URL: https://github.com/erkus-circus/cmds/"""
                 if leng(words, 2):
                     install(words[1])
                 else:
-                    print('Could not download empty package.')
+                    print('Usage: install <pkg>')
                     continue
 
             elif cmd1 == 'setname':
+                # set the username
                 if leng(words, 2):
                     osys.username = ' '.join(words[1:])
                 else:
                     print('Usage: setname <your-name>')
             
             elif cmd1 == 'name':
+                #get the username
                     print(osys.username)
             
             elif cmd1 == 'ispkg':
+                # is the pkg installed? check
                 if not leng(words, 2):
                     print('Usage: ispkg <pkg>\nreturns \'Installed\' if installed.\nif not returns \'\'')
                 else:
-                    if dirExists(BP + '/pkgs/' + ' '.join(words[1:])):
+                    if os.path.isdir(BP + '/pkgs/' + ' '.join(words[1:])):
                         print("'Installed'")
                     else:
                         print("''")
 
             elif cmd1 == 'pkgs':
+                # list pkgs in path
                 if not leng(words, 2):
                     for dr in osys.paths:
                         for i in os.listdir(dr):
@@ -434,6 +439,7 @@ def mainOs():
                         print('Usage: pkgs <on/off> (turns on and off pkgs)')
 
             elif cmd1 == 'devMode':
+                # turn devmode on or off or check if on or off
                 if not leng(words, 2):
                     print('devMode is %s.' % ONOFF[osys.devMode])
                 else:
@@ -452,6 +458,7 @@ def mainOs():
                         print('Usage: devMode <on/off> (turns on and off devMode)')
 
             elif cmd1 == 'stopAtError':
+                # if stop at error
                 if leng(words, 2):
                     if words[1] == 'true':
                         osys.stopAtError = True
@@ -463,8 +470,9 @@ def mainOs():
                     print('Usage: stopAtError <true/false>')
             
             elif cmd1 == 'open':
+                # open a file
                 if leng(words, 2):
-                    if fExists(' '.join(words[1:])):
+                    if os.path.isfile(' '.join(words[1:])):
                         cmd(' '.join(words[1:]))
                     else:
                         print('Invalid file name or file path.')
@@ -473,17 +481,19 @@ def mainOs():
                     print('Usage: open <path to file>')
 
             elif cmd1 == 'reset':
+                # reset terminal (MUSTDO if sharing)
                 print('Reseting..')
                 deldir(BP + '/pkgs/')
                 os.makedirs(BP + '/pkgs/')
                 with bpopen('path','w') as f:
-                    json.dump([BP + '\\pkgs'], f)
-                print('Reset complete. restarting...')
+                    f.write('[]')
                 clear()
                 osys.restart = True
+                print('Reset complete. restarting...')
                 break
 
             elif cmd1 == 'uninstall':
+                # uninstall pkg
                 if leng(words, 2):
                     try:
                         deldir(BP + '/pkgs/' + ' '.join(words[1:]))
@@ -503,7 +513,7 @@ def mainOs():
                     print(os.getcwd())
                     continue
 
-                if dirExists(join(words[1:])):
+                if os.path.isdir(join(words[1:])):
                     os.chdir(join(words[1:]))
                     osys.path = os.getcwd()
 
@@ -512,24 +522,28 @@ def mainOs():
                     continue
 
             elif cmd1 == 'dir':
+                # list directory
                 for i in os.listdir():
                     print(i)
 
             elif cmd1 == 'mirror':
+                # mirror back text
                 print(' '.join(words[1:]))
 
             elif cmd1 == 'uninstall':
                 """Uninstall an installed pkg (via install command)"""
-                rdir(BP + '/pkgs/%s/' % words[1])
+                deldir(BP + '/pkgs/%s/' % words[1])
 
             elif cmd1 == 'clr':
                 clear() # clear terminal
 
             else:
+                # cmd1 is not an actual cmd
                 print('Invalid command \'%s\'.\nTry typing \'pkgs on\'' % (cmd1))
 
-    except Exception as e:
+    except Exception or BaseException as e:
         if not osys.stopAtError:
+            # restart
             osys.restart = True
             clear()
             print('A crash occured. restarting...\n\n')
@@ -538,10 +552,11 @@ def mainOs():
             print(e)
 
     if osys.restart:
-        mainOs()
+        mainTerminal()
         sys.exit()
 
 def bpopen(*args):
+    """Open a a path from BP"""
     return open(BASE_PATH + '/' + args[0], *args[1:])
 
 def install(name):
@@ -552,10 +567,9 @@ def install(name):
         js = json.loads(bytes.decode(get(
             'https://raw.githubusercontent.com/erkus-circus/cmds/master/%s/setup.json' % name), 'utf8'))
 
-
-        if dirExists(path):
+        if os.path.isdir(path):
             print('Package already installed. reinstalling...')
-            rdir(path)
+            deldir(path)
             print('Package uninstalled. reinstalling...')
         
         os.makedirs(path)
@@ -578,8 +592,9 @@ def install(name):
         return
 
     except:
+        #The pkg is not able to download, delete any remanants to
         print('Unable to download pkg. cleaning up...\n')
-        if dirExists(path):
-            rdir(path)
+        if os.path.isdir(path):
+            deldir(path)
 
-mainOs()
+mainTerminal() # start main loop
