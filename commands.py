@@ -3,25 +3,26 @@ Commands for main.py execCmd()
 Eric Diskin
 2018
 """
-
-CD = 'cd' # change working directory
-DIR = 'dir' # list current wokring directory 
-MIRROR = 'mirror' # mirror text back
-INSTALL = 'install' # install an app from github
-UNINSTALL = 'uninstall' #uninstall an app 
-RESET = 'reset' # reset to defaults (to ready for sending to github)
-RESTART = 'restart' # restart system (may not work anymore)
-EXIT = 'exit' # call sys.exit
-SLEEP = 'sleep' # time.sleep for (float)
-WHATSNEW = 'whatsNew' # get what is new
-FUTURE = 'future' # get what will happen in the next update
-TREE = 'tree' # PRINT(not return) a tree of current dir and all sub with files
-PATH = 'path' # get the paths variable(where to scan for apps.)
-SETNAME = 'setname' # set the osys.username
-NAME = 'name' # get osys.username
-ISPKG = 'ispkg' # check if an app is isntalled 
-APPS = 'apps' # get a list of all apps
-DEVMODE = 'devMode' # turn devmode on or off
-STOPATERROR = 'stopAtError' # exit the script when an error occurs
-OPEN = 'open' # open a file 
-CLEAR = 'clr' # clear terminal (sys.stdout)
+CMDS = [
+    'cd', # change working directory
+    'dir', # list current wokring directory 
+    'mirror', # mirror text back
+    'install', # install an app from github
+    'uninstall', #uninstall an app 
+    'reset', # reset to defaults (to ready for sending to github)
+    'restart', # restart system (may not work anymore)
+    'exit', # call sys.exit
+    'sleep', # time.sleep for (float)
+    'whatsNew', # get what is new
+    'future', # get what will happen in the next update
+    'tree', # PRINT(not return) a tree of current dir and all sub with files
+    'path', # get the paths variable(where to scan for apps.)
+    'setname', # set the osys.username
+    'name', # get osys.username
+    'isapp', # check if an app is isntalled 
+    'apps', # get a list of all apps
+    'devMode', # turn devmode on or off
+    'stopAtError', # exit the script when an error occurs
+    'open', # open a file 
+    'clr' # clear terminal (sys.stdout)
+]
